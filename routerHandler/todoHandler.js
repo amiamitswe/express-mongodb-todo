@@ -7,7 +7,7 @@ const router = express.Router();
 // make todo modal, this mainly return a class
 const Todo = new mongoose.model("Todo", todoSchema);
 
-// GET A TODO
+// GET A TODO (instance method)
 router.get("/activeTodo", async (req, res) => {
   try {
     const todo = new Todo();
@@ -34,7 +34,7 @@ router.get("/activeTodo", async (req, res) => {
   }
 });
 
-// GET A TODO using CallBack
+// GET A TODO using CallBack (instance method with parm)
 router.get("/activeTodo-cb", (req, res) => {
   const todo = new Todo();
   todo.findActiveCb((err, data) => {
@@ -51,6 +51,40 @@ router.get("/activeTodo-cb", (req, res) => {
       });
     }
   });
+});
+
+// GET A TODOs with title js (static method)
+router.get("/js", async (req, res) => {
+  try {
+    const result = await Todo.findByJs().limit(2).select({
+      __v: 0,
+    });
+    res.status(200).json({
+      message: "Fetching data success using static method",
+      totalDataCount: result.length,
+      result,
+    });
+  } catch (err) {
+    res.status(500).json({
+      error: "There was a server side error",
+    });
+  }
+});
+
+// GET A TODOs with title language (query helpers)
+router.get("/language", async (req, res) => {
+  try {
+    const result = await Todo.find().findByLanguage("express");
+    res.status(200).json({
+      message: "Fetching data success using query helpers",
+      totalDataCount: result.length,
+      result,
+    });
+  } catch (err) {
+    res.status(500).json({
+      error: "There was a server side error",
+    });
+  }
 });
 
 // GET ALL TODOs
@@ -269,7 +303,18 @@ router.put("/:id", (req, res) => {
 //   }
 // });
 
-// DELETE ONE TODO
+// DELETE MANY TODOs
+router.delete("/delete/all", async (req, res) => {
+  try {
+    const result = await Todo.deleteMany({});
+    res.status(200).json({ message: "Data delete success", result });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ error: "There was a Server Side Error!" });
+  }
+});
+
+// // DELETE ONE TODO
 // router.delete("/delete/:id", async (req, res) => {
 //   await Todo.deleteOne({ _id: req.params.id }, { limit: 1 })
 //     .then((data) => {
@@ -280,15 +325,5 @@ router.put("/:id", (req, res) => {
 //       res.status(500).json({ error: "There was a Server Side Error!" });
 //     });
 // });
-
-router.delete("/delete/all", async (req, res) => {
-  try {
-    const result = await Todo.deleteMany({});
-    res.status(200).json({ message: "Data delete success", result });
-  } catch (err) {
-    console.log(err);
-    res.status(500).json({ error: "There was a Server Side Error!" });
-  }
-});
 
 module.exports = router;
