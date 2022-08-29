@@ -7,6 +7,52 @@ const router = express.Router();
 // make todo modal, this mainly return a class
 const Todo = new mongoose.model("Todo", todoSchema);
 
+// GET A TODO
+router.get("/activeTodo", async (req, res) => {
+  try {
+    const todo = new Todo();
+    const result = await todo
+      .findActive()
+      .select({
+        // _id: 0,
+        // date: 0,
+        title: 0,
+        status: 0,
+        __v: 0,
+      })
+      .limit(200);
+    res.status(200).json({
+      message: "Fetching data success",
+      totalDataCount: result.length,
+      result,
+    });
+  } catch (err) {
+    res.status(500).json({
+      error: "There was a server side error",
+      err,
+    });
+  }
+});
+
+// GET A TODO using CallBack
+router.get("/activeTodo-cb", (req, res) => {
+  const todo = new Todo();
+  todo.findActiveCb((err, data) => {
+    if (err) {
+      res.status(500).json({
+        error: "There was a server side error",
+        err,
+      });
+    } else {
+      res.status(200).json({
+        message: "Fetching data success",
+        totalDataCount: data.length,
+        data,
+      });
+    }
+  });
+});
+
 // GET ALL TODOs
 router.get("/", async (req, res) => {
   // // // bad 1
