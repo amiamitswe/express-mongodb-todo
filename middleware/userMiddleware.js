@@ -10,7 +10,7 @@ middleWares.sighUpMiddleware = async (req, res, next) => {
       : false;
   const username =
     typeof req.body.username === "string" && req.body.username.trim().length > 2
-      ? req.body.username
+      ? req.body.username.toLowerCase()
       : false;
   const password =
     typeof req.body.password === "string" && req.body.password.trim().length > 4
