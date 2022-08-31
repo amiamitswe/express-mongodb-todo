@@ -55,4 +55,30 @@ middleWares.sighUpMiddleware = async (req, res, next) => {
   }
 };
 
+middleWares.loginMiddleware = (req, res, next) => {
+  const username =
+    typeof req.body.username === "string" && req.body.username.trim().length > 2
+      ? req.body.username.toLowerCase()
+      : false;
+  const password =
+    typeof req.body.password === "string" && req.body.password.trim().length > 4
+      ? req.body.password
+      : false;
+
+  if (username && password) {
+    next();
+  } else {
+    const errorMessage = {};
+    if (!username) {
+      errorMessage.username = "Username is required";
+    }
+    if (!password) {
+      errorMessage.password = "Password is required";
+    }
+    res
+      .status(400)
+      .json({ message: "All field is required", error: errorMessage });
+  }
+};
+
 module.exports = middleWares;

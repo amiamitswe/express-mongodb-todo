@@ -1,5 +1,6 @@
 const express = require("express");
 const mongoose = require("mongoose");
+const checkLogin = require("../middleware/checkLogin");
 const todoSchema = require("../schemas/todoSchema");
 
 const router = express.Router();
@@ -8,7 +9,7 @@ const router = express.Router();
 const Todo = new mongoose.model("Todo", todoSchema);
 
 // GET A TODO (instance method)
-router.get("/activeTodo", async (req, res) => {
+router.get("/activeTodo", checkLogin, async (req, res) => {
   try {
     const todo = new Todo();
     const result = await todo
@@ -35,7 +36,7 @@ router.get("/activeTodo", async (req, res) => {
 });
 
 // GET A TODO using CallBack (instance method with parm)
-router.get("/activeTodo-cb", (req, res) => {
+router.get("/activeTodo-cb", checkLogin, (req, res) => {
   const todo = new Todo();
   todo.findActiveCb((err, data) => {
     if (err) {
@@ -54,7 +55,7 @@ router.get("/activeTodo-cb", (req, res) => {
 });
 
 // GET A TODOs with title js (static method)
-router.get("/js", async (req, res) => {
+router.get("/js", checkLogin, async (req, res) => {
   try {
     const result = await Todo.findByJs().limit(2).select({
       __v: 0,
@@ -72,7 +73,7 @@ router.get("/js", async (req, res) => {
 });
 
 // GET A TODOs with title language (query helpers)
-router.get("/language", async (req, res) => {
+router.get("/language", checkLogin, async (req, res) => {
   try {
     const result = await Todo.find().findByLanguage("express");
     res.status(200).json({
@@ -88,7 +89,7 @@ router.get("/language", async (req, res) => {
 });
 
 // GET ALL TODOs
-router.get("/", async (req, res) => {
+router.get("/", checkLogin, async (req, res) => {
   // // // bad 1
   // await Todo.find({ status: "inactive" }, "status date", { limit: 10, skip: 1 })
   //   .then((data) => {
@@ -175,7 +176,7 @@ router.get("/", async (req, res) => {
 });
 
 // GET ONE TODO
-router.get("/get/:id", async (req, res) => {
+router.get("/get/:id", checkLogin, async (req, res) => {
   try {
     const data = await Todo.findOne({ _id: req.params.id }, "status date");
     res.status(200).json({ message: "Fetching data success", data });
@@ -188,7 +189,7 @@ router.get("/get/:id", async (req, res) => {
 });
 
 // POST A TODOs
-router.post("/", async (req, res) => {
+router.post("/", checkLogin, async (req, res) => {
   const newToDO = new Todo(req.body);
   try {
     const result = await newToDO.save();
@@ -204,7 +205,7 @@ router.post("/", async (req, res) => {
 });
 
 // POST MULTIPLE TODOs
-router.post("/all", async (req, res) => {
+router.post("/all", checkLogin, async (req, res) => {
   try {
     const result = await Todo.insertMany(req.body);
     res.status(200).json({
@@ -219,7 +220,7 @@ router.post("/all", async (req, res) => {
 });
 
 // PUT or UPDATE ONE TODOs
-router.put("/:id", (req, res) => {
+router.put("/:id", checkLogin, (req, res) => {
   // // // ###################################################################################
   // // option 1
   // try {
@@ -304,7 +305,7 @@ router.put("/:id", (req, res) => {
 // });
 
 // DELETE MANY TODOs
-router.delete("/delete/all", async (req, res) => {
+router.delete("/delete/all", checkLogin, async (req, res) => {
   try {
     const result = await Todo.deleteMany({});
     res.status(200).json({ message: "Data delete success", result });
@@ -315,7 +316,7 @@ router.delete("/delete/all", async (req, res) => {
 });
 
 // // DELETE ONE TODO
-// router.delete("/delete/:id", async (req, res) => {
+// router.delete("/delete/:id",checkLogin, async (req, res) => {
 //   await Todo.deleteOne({ _id: req.params.id }, { limit: 1 })
 //     .then((data) => {
 //       res.status(200).json({ message: "Data Deleted successfully", data });

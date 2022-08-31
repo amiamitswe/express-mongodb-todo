@@ -9,15 +9,14 @@
 
 // dependencies
 const express = require("express");
+const dotenv = require("dotenv");
 const mongoose = require("mongoose");
 const todoHandler = require("./routerHandler/todoHandler");
 const userHandler = require("./routerHandler/userHandler");
 
-// app port
-const port = 3000;
-
 // app initialization
 const app = express();
+dotenv.config();
 app.use(express.json());
 
 // database connection with mongoose
@@ -42,7 +41,9 @@ const errorHandler = (err, req, res, next) => {
   res.status(500).json({ error: err });
 };
 
+app.use(errorHandler);
+
 // listen app
-app.listen(port, () => {
-  console.log(`App running on port no ${port}`);
+app.listen(process.env.PORT, () => {
+  console.log(`App running on port no ${process.env.PORT}`);
 });
