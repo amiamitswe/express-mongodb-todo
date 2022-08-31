@@ -2,11 +2,13 @@ const express = require("express");
 const mongoose = require("mongoose");
 const checkLogin = require("../middleware/checkLogin");
 const todoSchema = require("../schemas/todoSchema");
+const userSchema = require("../schemas/userSchema");
 
 const router = express.Router();
 
 // make todo modal, this mainly return a class
 const Todo = new mongoose.model("Todo", todoSchema);
+const User = new mongoose.model("User", userSchema);
 
 // GET A TODO (instance method)
 router.get("/activeTodo", checkLogin, async (req, res) => {
@@ -154,6 +156,7 @@ router.get("/", checkLogin, async (req, res) => {
   // ########################################################################
   try {
     const result = await Todo.find({ status: "active" })
+      .populate("user", "name username status -_id")
       .select({
         // _id: 0,
         // date: 0,
@@ -190,9 +193,23 @@ router.get("/get/:id", checkLogin, async (req, res) => {
 
 // POST A TODOs
 router.post("/", checkLogin, async (req, res) => {
-  const newToDO = new Todo(req.body);
+  const bodyData = {
+    ...req.body,
+    user: req.userId,
+  };
+  const newToDO = new Todo(bodyData);
   try {
     const result = await newToDO.save();
+    await User.updateOne(
+      {
+        _id: req.userId,
+      },
+      {
+        $push: {
+          allTodo: result._id,
+        },
+      }
+    );
     res.status(200).json({
       message: "TODO inserted successfully !!!",
       result,

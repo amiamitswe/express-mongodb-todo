@@ -18,6 +18,7 @@ const useSchema = mongoose.Schema({
     enum: ["active", "inactive"],
     default: "active",
   },
+  allTodo: [{ type: mongoose.Types.ObjectId, ref: "Todo" }],
 });
 
 module.exports = useSchema;

@@ -8,6 +8,7 @@ const {
   sighUpMiddleware,
   loginMiddleware,
 } = require("../middleware/userMiddleware");
+const checkLogin = require("../middleware/checkLogin");
 
 const router = express.Router();
 
@@ -87,8 +88,19 @@ router.post("/login", loginMiddleware, async (req, res) => {
   }
 });
 
-router.get("/", (req, res) => {
-  res.send("ok");
+router.get("/allUser", checkLogin, async (req, res) => {
+  try {
+    const result = await UserModel.find({}).populate(
+      "allTodo",
+      "title description status"
+    );
+    res.status(200).json({ resultCount: result.length, result });
+  } catch {
+    res.status(500).json({
+      error: "There was a server side error",
+      err,
+    });
+  }
 });
 
 module.exports = router;
